@@ -15,13 +15,18 @@
 
 <script>
 import axios from 'axios'
-import {toast} from 'bulma-toast'
+import { toast } from 'bulma-toast'
+
+import ProductBox from '@/components/ProductBox'
 
 export default {
     name: 'Category',
+    components: {
+        ProductBox
+    },
     data() {
         return {
-            category : {
+            category: {
                 products: []
             }
         }
@@ -29,34 +34,41 @@ export default {
     mounted() {
         this.getCategory()
     },
+    watch: {
+        $route(to, from) {
+            if (to.name === 'Category') {
+                this.getCategory()
+            }
+        }
+    },
     methods: {
         async getCategory() {
-            const category_slug = this.$route.params.category_slug
+            const categorySlug = this.$route.params.category_slug
 
             this.$store.commit('setIsLoading', true)
-            await axios
-                .get(`/api/v1/products/${category_slug}`)
+
+            axios
+                .get(`/api/v1/products/${categorySlug}`)
                 .then(response => {
                     this.category = response.data
+
                     document.title = this.category.name + ' | Djackets'
                 })
                 .catch(error => {
                     console.log(error)
 
                     toast({
-                        message: 'The product was added to the cart',
-                        type: 'is-success',
+                        message: 'Something went wrong. Please try again.',
+                        type: 'is-danger',
                         dismissible: true,
                         pauseOnHover: true,
                         duration: 2000,
                         position: 'bottom-right',
                     })
                 })
-            this.$store.commit('setIsLoading', false)
 
+            this.$store.commit('setIsLoading', false)
         }
     }
-
 }
-
 </script>
